@@ -16,3 +16,4 @@ def createMidi(track):
         for msg in trck:  # for every line in a current track
             if str(msg).startswith("note_on"):  # get the information about the notes
                 print(msg)
+                print(msg)

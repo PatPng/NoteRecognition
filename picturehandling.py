@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 image_filename = "img01.jpg"                                                         # image Name
 SongImageOriginal = cv2.imread(image_filename)                                       # read
 
@@ -56,6 +55,5 @@ for i in range(len(slices)):                                                    
         sliceName = "slice" + str(j) + ".jpg"                                       # slice naming
         cv2.imwrite('resources/' + sliceName, slices[i])
         j = j + 1
-
 
 

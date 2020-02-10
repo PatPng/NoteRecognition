@@ -13,6 +13,7 @@ nonZeroMinArea = cv2.minAreaRect(nonZeroElements)                               
 if w > h:
     w, h = h, w
     ang += 90
+    
 M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)                                      # do the rotation
 rotated = cv2.warpAffine(thr, M, (SongImageOriginal.shape[1], SongImageOriginal.shape[0]))
 

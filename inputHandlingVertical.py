@@ -1,22 +1,23 @@
 import cv2
 import numpy as np
+import os
 
 image_filename = "img01.jpg"                                                         # image Name
-SongImageOriginal = cv2.imread(image_filename)                                       # read
+img = cv2.imread(image_filename)                                       # read
 
-gray = cv2.cvtColor(SongImageOriginal, cv2.COLOR_BGR2GRAY)                           # transform into gray img
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)                           # transform into gray img
 th, thr = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)     # pixels have 1 of 2 values
 nonZeroElements = cv2.findNonZero(thr)                                               # find the non zero pixels
 nonZeroMinArea = cv2.minAreaRect(nonZeroElements)                                    # mark the area
 
 (cx, cy), (w, h), ang = nonZeroMinArea                                               # find rotated matrix
 M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)                                      # do the rotation
-rotated = cv2.warpAffine(thr, M, (SongImageOriginal.shape[1], SongImageOriginal.shape[0]))
+rotated = cv2.warpAffine(thr, M, (img.shape[1], img.shape[0]))
 
 hist = cv2.reduce(rotated, 1, cv2.REDUCE_AVG).reshape(-1)                            # reduce matrix to a vector
 
 th = 2                                                                               # change the threshold (empirical)
-H, W = SongImageOriginal.shape[:2]                                                   # picture dimensions
+H, W = img.shape[:2]                                                   # picture dimensions
 
 upperBound = [y for y in range(H - 1) if hist[y] <= th < hist[y + 1]]                # upper bounds
 lowerBound = [y for y in range(H - 1) if hist[y] > th >= hist[y + 1]]                # lower bounds
@@ -51,7 +52,12 @@ for i in range(len(slices)):                                                    
     # wanted slices have approximately the same mean of pixels, ignore the unwanted lines(+- 15% of mean)
     if 1.15 * mean > valid_slices_pixel_mean[i] > 0.85 * mean:
         sliceName = "slice" + str(j) + ".jpg"                                       # slice naming
-        cv2.imwrite('resources/' + sliceName, slices[i])
+        path = "resources/" + image_filename[:-4] + "/"                             # directory for the slices
+        try:                                                                        # create the dir if it doesn't exist
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+        cv2.imwrite(path + sliceName, slices[i])                                    # save the slices in that directory
         j = j + 1                                                                   # name slices iteratively
 
 

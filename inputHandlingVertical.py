@@ -50,7 +50,7 @@ mean = np.mean(valid_slices_pixel_mean)                                         
 j = 0
 for i in range(len(slices)):                                                        # save the valid slices
     # wanted slices have approximately the same mean of pixels, ignore the unwanted lines(+- 15% of mean)
-    if 1.15 * mean > valid_slices_pixel_mean[i] > 0.85 * mean:
+    if 1.30 * mean > valid_slices_pixel_mean[i] > 0.70 * mean:
         sliceName = "slice" + str(j) + ".jpg"                                       # slice naming
         path = "resources/" + image_filename[:-4] + "/"                             # directory for the slices
         try:                                                                        # create the dir if it doesn't exist

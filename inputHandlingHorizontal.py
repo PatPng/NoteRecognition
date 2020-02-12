@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import os
-
+# TODO - make it into a function that has an arg = path(str)
+# TODO - try to compare to min instead of mean
 path = ".\\resources\\img02\\"                                         # image location
 
 images = []                                                            # get all the images in the directory

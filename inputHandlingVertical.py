@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-
+# TODO - make it into a function that has an arg = path(str)
 image_filename = "img02.jpg"                                                         # image Name
 img = cv2.imread(image_filename)                                                     # read
 

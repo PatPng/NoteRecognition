@@ -3,21 +3,21 @@ import numpy as np
 import os
 
 image_filename = "img02.jpg"                                                         # image Name
-img = cv2.imread(image_filename)                                       # read
+img = cv2.imread(image_filename)                                                     # read
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)                           # transform into gray img
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)                                         # transform into gray img
 th, thr = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)     # pixels have 1 of 2 values
 nonZeroElements = cv2.findNonZero(thr)                                               # find the non zero pixels
-nonZeroMinArea = cv2.minAreaRect(nonZeroElements)                                    # mark the area
+nonZeroMinArea = cv2.minAreaRect(nonZeroElements)                                    # mark the area with a rectangle
 
 (cx, cy), (w, h), ang = nonZeroMinArea                                               # find rotated matrix
-M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)                                      # do the rotation
-rotated = cv2.warpAffine(thr, M, (img.shape[1], img.shape[0]))
+M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)
+rotated = cv2.warpAffine(thr, M, (img.shape[1], img.shape[0]))                       # do the rotation
 
 hist = cv2.reduce(rotated, 1, cv2.REDUCE_AVG).reshape(-1)                            # reduce matrix to a vector
 
 th = 2                                                                               # change the threshold (empirical)
-H, W = img.shape[:2]                                                   # picture dimensions
+H, W = img.shape[:2]                                                                 # picture dimensions
 
 upperBound = [y for y in range(H - 1) if hist[y] <= th < hist[y + 1]]                # upper bounds
 lowerBound = [y for y in range(H - 1) if hist[y] > th >= hist[y + 1]]                # lower bounds
@@ -27,9 +27,6 @@ up_array = np.asarray(upperBound)                                               
 up = (H - up_array)
 low_array = np.asarray(lowerBound)
 low = (H - low_array)
-
-# test image to see the results
-#cv2.imwrite(image_filename+"RESULT.png", rotated)
 
 slices = []
 for i in range(len(up_array)):                                                     # row slicing
@@ -59,5 +56,3 @@ for i in range(len(slices)):                                                    
             pass
         cv2.imwrite(path + sliceName, slices[i])                                    # save the slices in that directory
         j = j + 1                                                                   # name slices iteratively
-
-

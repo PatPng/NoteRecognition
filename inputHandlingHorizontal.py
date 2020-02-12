@@ -9,19 +9,13 @@ for r, d, f in os.walk(path):                                          # r=root,
     for file in f:
         if '.jpg' in file:
             images.append(file)
-            break #makni ovo kasnije
 
+elementNumber = 0                                                     # indexing number for extracted elements
 for image_name in images:                                             # process every slice
     img = cv2.imread(path + image_name)                               # read the image
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)                      # convert the img to grayscale
 
     H, W = img.shape[:2]                                              # image dimensions
-
-    start_point = (0, 0)                                              # start and end point of a line
-    end_point = (0, 0)                                                # format is (x, y) = (0, 0) (for example)
-    color = (0, 255, 0)                                               # Green color in BGR
-    thickness = 3                                                     # Line thickness of 1 px
-
     imgMean = np.mean(img)                                            # find the mean of the image
 
     for i in range(len(img[0])):                                      # go horizontally; len(img[0]) = no. of columns
@@ -30,9 +24,6 @@ for image_name in images:                                             # process 
             columnMean = columnMean + np.mean(img[j][i])              # add the means of all the pixels in a column
         columnMean = columnMean / len(img)                            # divide by the number of elements(rows) in column
         if columnMean > imgMean:                                      # cut away the spaces before score lines
-            # start_point = (i, 0)
-            # end_point = (i, H)
-            # cv2.line(img, start_point, end_point, color, thickness)
             img = img[0:H, i:len(img[0])]                             # crop the image
             break                                                     # break when done
 
@@ -46,36 +37,37 @@ for image_name in images:                                             # process 
             break                                                    # break when done
 
     imgMean = np.mean(img)                                           # find the new mean of the image
-    xCutCoordinates = [0]
-    stillLess = False
-    for i in range(len(img[0])):  # go horizontally; len(img[0]) = no. of columns
-        columnMean = 0  # calculate the mean of every column
-        for j in range(len(img)):
-            columnMean = columnMean + np.mean(img[j][i])  # add the means of all the pixels in a column
-        columnMean = columnMean / len(img)  # divide by the number of elements(rows) in column
+    xCutStart = [0]                                                  # coordinates for the left side of the element
+    xCutEnd = []                                                     # coordinates for the right side of the element
+    stillLess = False                                                # flag = if the vertical line is less than mean
 
-        if columnMean < imgMean and stillLess is False:  # cut away the spaces before score lines
-            # start_point = (i, 0)
-            # end_point = (i, H)
-            # cv2.line(img, start_point, end_point, color, thickness)
-            xCutCoordinates.append(i)
-            stillLess = True
-        if columnMean >= imgMean and stillLess is True :
+    for i in range(len(img[0])):                                     # go horizontally; len(img[0]) = no. of columns
+        columnMean = 0                                               # calculate the mean of every column
+        for j in range(len(img)):
+            columnMean = columnMean + np.mean(img[j][i])             # add the means of all the pixels in a column
+        columnMean = columnMean / len(img)                           # divide by the number of elements(rows) in column
+
+        if columnMean >= imgMean:                                    # find the starting coordinate of a cropped picture
+            if stillLess is True:
+                xCutStart.append(i)
             stillLess = False
 
-    sheetElements = []
-    for i in range(len(xCutCoordinates) - 1):
-        element = img[0:H, xCutCoordinates[i]:xCutCoordinates[i+1]] # crop the image
-        sheetElements.append(element)
+        if columnMean < imgMean:                                    # find the ending coordinate of a cropped picture
+            if stillLess is False:
+                xCutEnd.append(i)
+            stillLess = True
 
-    for element in sheetElements:
-        cv2.imshow("linesDetected", element)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    xCutEnd.append(len(img[0]) - 1)                                 # the last cutting coordinate is the end of  image
 
+    for i in range(len(xCutStart)):
+        element = img[0:H, xCutStart[i]:xCutEnd[i]]                 # cut the element from the image
+        elementName = "el" + str(elementNumber).zfill(5) + ".jpg"   # generate the element name
+        try:                                                        # if an element is not null
+            cv2.imwrite(path + elementName, element)                # save the elements in the directory
+        except:                                                     # else, skip that element
+            pass
+        elementNumber = elementNumber + 1                           # increase the indexing number
 
-    # cv2.imshow("linesDetected", img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-
+for fileName in os.listdir(path):                                   # delete redundant images from the previous step
+    if fileName.startswith("slice"):
+        os.remove(os.path.join(path, fileName))

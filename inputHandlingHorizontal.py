@@ -5,11 +5,12 @@ import os
 # TODO - try to compare to min instead of mean
 path = ".\\resources\\img02\\"                                         # image location
 
-images = []                                                            # get all the images in the directory
+images = []                                                            # get all the image names in the directory
 for r, d, f in os.walk(path):                                          # r=root, d=directories, f = files
     for file in f:
         if '.jpg' in file:
-            images.append(file)
+            if 'el' not in file:
+                images.append(file)
 
 elementNumber = 0                                                     # indexing number for extracted elements
 for image_name in images:                                             # process every slice
@@ -48,12 +49,12 @@ for image_name in images:                                             # process 
             columnMean = columnMean + np.mean(img[j][i])             # add the means of all the pixels in a column
         columnMean = columnMean / len(img)                           # divide by the number of elements(rows) in column
 
-        if columnMean >= imgMean:                                    # find the starting coordinate of a cropped picture
+        if columnMean * 1.1 >= imgMean:                              # find the starting coordinate of a cropped picture
             if stillLess is True:
                 xCutStart.append(i)
             stillLess = False
 
-        if columnMean < imgMean:                                    # find the ending coordinate of a cropped picture
+        if columnMean * 1.1 < imgMean:                               # find the ending coordinate of a cropped picture
             if stillLess is False:
                 xCutEnd.append(i)
             stillLess = True
@@ -61,13 +62,14 @@ for image_name in images:                                             # process 
     xCutEnd.append(len(img[0]) - 1)                                 # the last cutting coordinate is the end of  image
 
     for i in range(len(xCutStart)):
-        element = img[0:H, xCutStart[i]:xCutEnd[i]]                 # cut the element from the image
+        element = img[0:H, xCutStart[i]:xCutEnd[i]]         # cut the element from the image
         elementName = "el" + str(elementNumber).zfill(5) + ".jpg"   # generate the element name
-        try:                                                        # if an element is not null
-            cv2.imwrite(path + elementName, element)                # save the elements in the directory
-        except:                                                     # else, skip that element
-            pass
-        elementNumber = elementNumber + 1                           # increase the indexing number
+        if len(element[0]) > 5:
+            try:                                                        # if an element is not null
+                cv2.imwrite(path + elementName, element)                # save the elements in the directory
+            except:                                                     # else, skip that element
+                pass
+            elementNumber = elementNumber + 1                           # increase the indexing number
 
 for fileName in os.listdir(path):                                   # delete redundant images from the previous step
     if fileName.startswith("slice"):

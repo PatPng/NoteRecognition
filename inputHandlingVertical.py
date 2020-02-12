@@ -14,6 +14,8 @@ nonZeroMinArea = cv2.minAreaRect(nonZeroElements)                               
 M = cv2.getRotationMatrix2D((cx, cy), ang, 1.0)
 rotated = cv2.warpAffine(thr, M, (img.shape[1], img.shape[0]))                       # do the rotation
 
+#TODO filter out noise
+
 hist = cv2.reduce(rotated, 1, cv2.REDUCE_AVG).reshape(-1)                            # reduce matrix to a vector
 
 th = 2                                                                               # change the threshold (empirical)
@@ -43,6 +45,7 @@ valid_slices_pixel_mean = []                                                    
 for s in slices:
     valid_slices_pixel_mean.append(np.mean(s))
 mean = np.mean(valid_slices_pixel_mean)                                            # find the mean value of all slices
+
 
 j = 0
 for i in range(len(slices)):                                                        # save the valid slices

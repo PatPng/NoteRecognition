@@ -24,7 +24,6 @@ H, W = img.shape[:2]                                                            
 upperBound = [y for y in range(H - 1) if hist[y] <= th < hist[y + 1]]                # upper bounds
 lowerBound = [y for y in range(H - 1) if hist[y] > th >= hist[y + 1]]                # lower bounds
 
-rotated = cv2.cvtColor(rotated, cv2.COLOR_GRAY2BGR)                                  # rotated img color conversion
 up_array = np.asarray(upperBound)                                                    # list to array conversion
 up = (H - up_array)
 low_array = np.asarray(lowerBound)
